@@ -40,5 +40,5 @@ jobs:
               if: failure() && steps.nodejs-unit-testing-step.outcome == 'failure' || steps.nodejs-unit-testing-step.outcome == 'success'
               uses: actions/upload-artifact@v4
               with: 
-                name: Mocha-Test-Result-${{ matrix.os }}-${{ matrix.node-version }}-${{ github.run_id }}
+                name: Mocha-Test-Result-${{ matrix.operating_system }}-${{ matrix.nodejs_version }}-${{ github.run_id }}
                 path: test-results.xml

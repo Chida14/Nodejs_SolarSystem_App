@@ -41,4 +41,4 @@ jobs:
               uses: actions/upload-artifact@v4
               with: 
                 name: Mocha-Test-Result-${{ matrix.os }}-${{ matrix.node-version }}-${{ github.run_id }}
-                path: test-results-${{ matrix.os }}-${{ matrix.node-version }}-${{ github.run_id }}.xml
+                path: test-results.xml

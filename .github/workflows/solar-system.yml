@@ -23,16 +23,21 @@ jobs:
         steps:
             - name: Checkout Repository
               uses: actions/checkout@v4
+
             - name: Setup NodeJS Version - ${{ matrix.nodejs_version }}
               uses: actions/setup-node@v4
               with:
                 node-version: ${{ matrix.nodejs_version }}
+
             - name: Install Dependencies
               run: npm install
           
             - name: Unit Testing
+              id: nodejs-unit-testing-step
               run: npm test
+
             - name: Archive Test Result
+              if: steps.nodejs-unit-testing-step.outcome == 'failure' || steps.nodejs-unit-testing-step.outcome == 'success'
               uses: actions/upload-artifact@v4
               with: 
                 name: Mocha-Test-Result

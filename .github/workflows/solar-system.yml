@@ -167,6 +167,8 @@ jobs:
     dev-deploy:
       needs: docker
       runs-on: ubuntu-latest
+      outputs:
+        APP_INGRESS_URL: ${{ steps.set-ingress-host-address.outputs.APP_INGRESS_HOST }}
       steps:
         - name: Checkout Repo
           uses: actions/checkout@v4
@@ -189,7 +191,7 @@ jobs:
             echo -------------------------------------------------------
             kubectl get nodes
 
-        - name: Save Ingress Nginx Controller IP as a GITHUB Environment Variable
+        - name: Save Ingress Nginx Controller IP as a GITHUB Environment Variable #with in the same job or between steps of a job
           run: |
             echo "INGRESS_IP=$(kubectl -n ${{ vars.NAMESPACE }} get service ingress-nginx-controller -o jsonpath="{.status.loadBalancer.ingress[0].ip}")" >> $GITHUB_ENV
     
@@ -223,11 +225,20 @@ jobs:
           run: |
             kubectl apply -f kubernetes/development/
 
-    # integrastion-testing:
-    #   name: Dev Integration Testing
-    #   needs: dev-deploy
-    #   runs-on: ubuntu-latest
-    #   steps:
-    #     - name: Test URL Output using CURL anf JQ
-    #       run: |
-    #       echo $URL
+        - name: Set App Ingress Host URl
+          id: set-ingress-host-address
+          run: |
+            echo "APP_INGRESS_HOST=$(kubectl get -n ${{ vars.NAMESPACE }} ingress -o jsonpath="{.items[0].spec.tls[0].hosts[0]}")" >> $GITHUB_OUTPUT
+
+    integrastion-testing:
+      name: Dev Integration Testing
+      needs: dev-deploy
+      runs-on: ubuntu-latest
+      steps:
+        - name: Test URL Output using CURL anf JQ
+          env:
+            URL: ${{ needs.dev-deploy.outputs.APP_INGRESS_URL}}
+          run: |
+            echo $URL
+            echo "--------------------------------------------------------------"
+            curl https://$URL/live -s -k | jq -r .status | grep -i live

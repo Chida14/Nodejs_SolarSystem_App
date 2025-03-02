@@ -281,7 +281,7 @@ jobs:
 
         - name: Save Ingress Nginx Controller IP as a GITHUB Environment Variable #with in the same job or between steps of a job
           run: |
-            echo "INGRESS_IP=$(kubectl -n ${{ vars.NAMESPACE }} get service ingress-nginx-prod-controller -o jsonpath="{.status.loadBalancer.ingress[0].ip}") >> $GITHUB_ENV
+            echo "INGRESS_IP=$(kubectl -n ${{ vars.NAMESPACE }} get service ingress-nginx-prod-controller -o jsonpath="{.status.loadBalancer.ingress[0].ip}")" >> $GITHUB_ENV
     
         - name: Replace Token in Manifest files
           uses: cschleiden/replace-tokens@v1

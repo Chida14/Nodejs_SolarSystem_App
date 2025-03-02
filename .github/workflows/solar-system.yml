@@ -189,7 +189,7 @@ jobs:
             echo -------------------------------------------------------
             kubectl get nodes
 
-        - name: Save Ingress Nginx COntroller IP as a GITHUB Environment Variable
+        - name: Save Ingress Nginx Controller IP as a GITHUB Environment Variable
           run: |
             echo "INGRESS_IP=$(kubectl -n ingress-basic get service ingress-nginx-controller -o jsonpath="{.status.loadBalancer.ingress[0].ip}")" >> $GITHUB_ENV
     

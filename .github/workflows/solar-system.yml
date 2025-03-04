@@ -168,6 +168,14 @@ jobs:
       if: contains(github.ref, 'feature/')
       needs: docker
       uses: ./.github/workflows/reuse-deployment.yml
+      secrets: 
+        k8s-kubeconfig: ${{ secrets.KUBECONFIG }}
+        mongodb-password: ${{ secrets.MONGO_PASSWORD }}
+      with:
+        mongodb-uri: ${{ vars.MONGO_URI }}
+        environment: development
+        k8s-manifest-dir: kubernetes/development/
+        
 
     dev-integrastion-testing:
       if: contains(github.ref, 'feature/')
@@ -177,7 +185,7 @@ jobs:
       steps:
         - name: Test URL Output using CURL anf JQ
           env:
-            URL: ${{ needs.dev-deploy.outputs.APP_INGRESS_URL}}
+            URL: ${{ needs.dev-deploy.outputs.application-url }}
           run: |
             echo $URL
             echo "--------------------------------------------------------------"
@@ -187,6 +195,13 @@ jobs:
       if: github.ref == 'refs/heads/main'
       needs: docker
       uses: ./.github/workflows/reuse-deployment.yml
+      secrets: 
+        k8s-kubeconfig: ${{ secrets.KUBECONFIG }}
+        mongodb-password: ${{ secrets.MONGO_PASSWORD }}
+      with:
+        mongodb-uri: ${{ vars.MONGO_URI }}
+        environment: production
+        k8s-manifest-dir: kubernetes/production/
 
     prod-integrastion-testing:
       name: Prod Integration Testing
@@ -196,7 +211,7 @@ jobs:
       steps:
         - name: Test URL Output using CURL anf JQ
           env:
-            URL: ${{ needs.prod-deploy.outputs.APP_INGRESS_URL}}
+            URL: ${{ needs.prod-deploy.outputs.application-url }}
           run: |
             echo $URL
             echo "--------------------------------------------------------------"

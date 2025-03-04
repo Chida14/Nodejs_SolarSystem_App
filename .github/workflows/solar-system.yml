@@ -102,6 +102,38 @@ jobs:
                 path: coverage
                 retention-days: 5
 
+    reports-AzBlob:
+      needs: [code-coverage, unit-testing]     
+      name: Azure blob
+      runs-on: ubuntu-latest
+      continue-on-error: true
+      steps:
+        - name: Download Mocha Test Artifact
+          uses: actions/download-artifact@v4
+          with:
+            name: Mocha-Test-Results
+        
+        - name: Download Code Coverage Artifact
+          uses: actions/download-artifact@v4
+          with:
+            name: Code-Coverage-Result
+
+        - name: Merge Test Files
+          run: |
+            ls -ltr
+            mkdir reports-${{ github.sha }}
+            mv cobertura-coverage.xml reports-${{ github.sha }}/
+            mv test-results.xml reports-${{ github.sha }}/
+            ls -ltr reports-${{ github.sha }}/
+
+        - name: Azure Blob Upload
+          uses: LanceMcCarthy/Action-AzureBlobUpload@v3.3.2
+          with:
+            connection_string: ${{ secrets.MyCnnStr }}
+            container_name: reports
+            source_folder: reports-${{ github.sha }}
+            destination_folder: reports-${{ github.sha }}
+
     docker:
       name: Containerization
       needs: [unit-testing, code-coverage]
